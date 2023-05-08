@@ -1,2 +1,3 @@
-# wp-plugin-suggestions
-WordPress Plugin Suggestions
+# WP-PLUGIN-SUGGESTIONS
+
+Wordpress plugin suggestions

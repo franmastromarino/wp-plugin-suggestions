@@ -1,0 +1,13 @@
+node_modules
+src
+webpack.config.js
+.babelrc
+.gitignore
+.npmignore
+.eslintrc.json
+.prettierrc.js
+.prettierignore
+.eslintignore
+.editorconfig
+*.zip
+*.tgz.
