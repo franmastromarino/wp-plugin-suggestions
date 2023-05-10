@@ -1,6 +1,6 @@
 {
 	"name": "wp-plugin-suggestions",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "suggestions for plugins by quadlayers",
 	"main": "./build/index.js",
 	"author": "Quadlayers",
