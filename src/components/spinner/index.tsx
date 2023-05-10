@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
+import React, { JSX } from 'react';
 
-export function Spinner() {
+export const Spinner = (): JSX.Element => {
 	return (
 		<p>
 			<span
@@ -10,4 +11,4 @@ export function Spinner() {
 			{ __( 'Loading…', 'wp-plugin-suggestions' ) }
 		</p>
 	);
-}
+};

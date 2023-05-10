@@ -5,7 +5,7 @@ const defaultConfig = require( './node_modules/@wordpress/scripts/config/webpack
 
 module.exports = {
 	...defaultConfig,
-	entry: './src/index.js',
+	entry: './src/index.tsx',
 	output: {
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
@@ -19,7 +19,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.(js|jsx)$/,
+				test: /\.(ts|js)x?$/,
 				exclude: /node_modules/,
 				use: {
 					loader: 'babel-loader',
@@ -31,6 +31,6 @@ module.exports = {
 		react: 'react',
 	},
 	resolve: {
-		extensions: [ '.js', '.jsx' ],
+		extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
 	},
 };

@@ -11,9 +11,15 @@ import wpApiFetch from '@wordpress/api-fetch';
  * @returns response or error
  */
 
-export async function apiFetch( args ) {
+interface ApiResponse {
+	code?: string;
+	message?: string;
+	[ key: string ]: unknown;
+}
+
+export async function apiFetch( args: any ): Promise< any > {
 	return await wpApiFetch( args )
-		.then( ( response ) => {
+		.then( ( response: ApiResponse ) => {
 			if ( !! response.code ) {
 				throw new Error(
 					`${ response.code }: ${ response?.message || 'Unknown' }`
@@ -21,42 +27,48 @@ export async function apiFetch( args ) {
 			}
 			return response;
 		} )
-		.catch( ( error ) => {
+		.catch( ( error: unknown ) => {
 			throw new Error( JSON.stringify( error ) );
 		} );
 }
 
-export const LABELS = {
+export const LABELS: {
+	install: string;
+	inactive: string;
+	active: string;
+	[ key: string ]: any;
+} = {
 	install: __( 'Install', 'wp-plugin-suggestions' ),
 	inactive: __( 'Active', 'wp-plugin-suggestions' ),
 	active: __( 'Active', 'wp-plugin-suggestions' ),
 };
 
-export function getLastUpdate( last_updated ) {
+export function getLastUpdate( last_updated: string ): string {
 	const lastDate = new Date( last_updated.split( ' ' )[ 0 ] );
 	const currentDate = new Date();
-	const lastUpdate = parseInt(
-		Math.floor(
-			new Date( currentDate.getTime() - lastDate.getTime() ) /
-				( 1000 * 60 * 60 * 24 )
-		)
+
+	const timeDifference = currentDate.getTime() - lastDate.getTime();
+	const daysDifference = Math.floor(
+		timeDifference / ( 1000 * 60 * 60 * 24 )
 	);
 
-	if ( lastUpdate == 0 ) {
+	const lastUpdate = parseInt( daysDifference.toString() );
+
+	if ( lastUpdate === 0 ) {
 		return __( 'Today', 'wp-plugin-suggestions' );
 	}
 
 	if ( lastUpdate > 30 ) {
 		return sprintf(
 			__( '%s Months Ago', 'wp-plugin-suggestions' ),
-			parseInt( Math.floor( lastUpdate / 30 ) )
+			parseInt( Math.floor( lastUpdate / 30 ).toString() )
 		);
 	}
 
 	return sprintf( __( '%s Days Ago', 'wp-plugin-suggestions' ), lastUpdate );
 }
 
-export const getWordPressDirectoryURL = ( slug ) => {
+export const getWordPressDirectoryURL = ( slug: string ): string => {
 	return `https://wordpress.org/plugin/${ slug }`;
 };
 

@@ -1,6 +1,13 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable jsdoc/require-param */
 /* eslint-disable jsdoc/check-param-names */
 /* eslint-disable jsdoc/require-param-type */
+/**
+ * Exteral dependencies
+ */
+import styled from 'styled-components';
+import React, { JSX } from 'react';
+
 /**
  * WordPress dependencies
  */
@@ -12,7 +19,7 @@ import PluginCard from './card';
 import { Spinner } from './spinner';
 import { useSitePlugins, useWordPressPlugins } from '../store/helpers';
 import '../store';
-import styled from 'styled-components';
+
 export * from '../store';
 
 /**
@@ -27,7 +34,8 @@ export * from '../store';
  * @param {boolean} [showDownloaded=true]    - Whether to display the downloaded version of the plugin. Defaults to true.
  * @param {boolean} [showCompatibility=true] - Whether to display the compatibility version of the plugin. Defaults to true.
  */
-const List = ( props ) => {
+
+const List = ( props: JSX.IntrinsicAttributes ): JSX.Element => {
 	const {
 		wordpressPlugins,
 		isResolvingWordPressPlugins,
@@ -49,9 +57,9 @@ const List = ( props ) => {
 
 	return (
 		<Wrapper className="wrap">
-			{ wordpressPlugins.map( ( data ) => {
+			{ wordpressPlugins.map( ( data: any ) => {
 				const pluginStatus =
-					sitePlugins.find( ( { name } ) => name == data.slug )
+					sitePlugins.find( ( name: string ) => name === data.slug )
 						?.status || 'install';
 				return (
 					<PluginCard

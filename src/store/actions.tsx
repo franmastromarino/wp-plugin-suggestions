@@ -1,21 +1,23 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { WordPressPlugin, SitePlugin } from './types';
+
 /**
  * Internal dependencies
  */
 import { apiFetch } from './helpers';
 
-export const setWordPressPlugins = ( wordpressPlugins ) => {
+export const setWordPressPlugins = ( wordpressPlugins: WordPressPlugin[] ) => {
 	return {
 		type: 'SET_WORDPRESS_PLUGINS',
 		payload: wordpressPlugins,
 	};
 };
 
-export const setSitePlugins = ( sitePlugins ) => {
+export const setSitePlugins = ( sitePlugins: SitePlugin[] ) => {
 	return {
 		type: 'SET_SITE_PLUGINS',
 		payload: sitePlugins,
@@ -23,8 +25,16 @@ export const setSitePlugins = ( sitePlugins ) => {
 };
 
 export const installWordPressPlugin =
-	( slug ) =>
-	async ( { registry, dispatch, select, resolveSelect } ) => {
+	( slug: string ) =>
+	async ( {
+		registry,
+		dispatch,
+		select,
+	}: {
+		registry: any;
+		dispatch: any;
+		select: any;
+	} ) => {
 		const sitePlugins = select.getSitePlugins();
 
 		const response = await apiFetch( {
@@ -33,7 +43,6 @@ export const installWordPressPlugin =
 			data: { slug, status: 'inactive' },
 		} );
 
-		/// check the response
 		if ( ! response?.author ) {
 			registry
 				.dispatch( noticesStore )
@@ -50,7 +59,7 @@ export const installWordPressPlugin =
 			};
 		}
 
-		const pluginInstalled = {
+		const pluginInstalled: SitePlugin = {
 			name: response.plugin.split( '/' )[ 1 ],
 			status: response.status,
 			url: response._links.self[ 0 ].href,
@@ -63,10 +72,18 @@ export const installWordPressPlugin =
 	};
 
 export const activateSitePlugin =
-	( slug ) =>
-	async ( { registry, dispatch, select, resolveSelect } ) => {
+	( slug: string ) =>
+	async ( {
+		registry,
+		dispatch,
+		select,
+	}: {
+		registry: any;
+		dispatch: any;
+		select: any;
+	} ) => {
 		const sitePlugins = select.getSitePlugins();
-		const plugin = sitePlugins.find( ( { name } ) => name == slug );
+		const plugin = sitePlugins.find( ( name: string ) => name === slug );
 
 		if ( ! plugin?.url ) {
 			return {
@@ -83,40 +100,38 @@ export const activateSitePlugin =
 			data: { status: 'active' },
 		} );
 
-		/// check the response
-
-		const pluginInstalled = {
+		const pluginInstalled: SitePlugin = {
 			name: response.plugin.split( '/' )[ 1 ],
 			status: response.status,
 			url: response._links.self[ 0 ].href,
 		};
 
-		dispatch.setSitePlugins( [
-			...sitePlugins.map( ( f ) =>
-				f.name == pluginInstalled.name ? pluginInstalled : f
-			),
-		] );
+		dispatch.setSitePlugins(
+			sitePlugins.map( ( f: { name: string } ) =>
+				f.name === pluginInstalled.name ? pluginInstalled : f
+			)
+		);
 
 		return pluginInstalled;
 	};
 
-export const fetchSitePlugins = async () => {
+export const fetchSitePlugins = async (): Promise< SitePlugin[] > => {
 	const response = await apiFetch( {
 		method: 'GET',
 		path: 'wp/v2/plugins',
 	} );
 	return response
-		.filter( ( { author } ) => author == 'QuadLayers' )
-		.map( ( data ) => ( {
+		.filter( ( author: string ) => author === 'QuadLayers' )
+		.map( ( data: any ) => ( {
 			name: data.plugin.split( '/' )[ 0 ],
 			status: data.status,
 			url: data._links.self[ 0 ].href,
 		} ) );
 };
 
-export const fetchWordPressPlugins = async () => {
+export const fetchWordPressPlugins = async (): Promise< WordPressPlugin[] > => {
 	const URL_PLUGINS =
 		'https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[author]=quadlayers';
 	const response = await fetch( URL_PLUGINS );
-	return response.json();
+	return ( await response.json() ) as WordPressPlugin[];
 };

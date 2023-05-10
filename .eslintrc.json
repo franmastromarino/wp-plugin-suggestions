@@ -6,6 +6,7 @@
 	"extends": [ "plugin:@wordpress/eslint-plugin/recommended" ],
 	"rules": {
 		"react/prop-types": "off",
-		"jsdoc/check-tag-names": "off"
+		"jsdoc/check-tag-names": "off",
+		"camelcase": "off"
 	}
 }

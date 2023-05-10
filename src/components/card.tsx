@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import styled from 'styled-components';
+import React, { JSX } from 'react';
 /**
  * WordPress dependencies
  */
@@ -11,12 +13,35 @@ import { useState, useEffect } from '@wordpress/element';
  */
 import { Spinner } from '../components/spinner';
 import { getLastUpdate, LABELS, ImagePlaceholder } from '../helpers';
-import styled from 'styled-components';
+
+interface PluginCardProps {
+	name?: string;
+	slug?: string;
+	icons?: string;
+	homepage?: string;
+	short_description?: string;
+	num_ratings?: number;
+	active_installs?: number;
+	pluginStatus?: string;
+	installWordPressPlugin: ( slug: string ) => Promise< any >; // Update the return type based on the actual return type of the function
+	activateSitePlugin: ( slug: string ) => Promise< any >; // Update the return type based on the actual return type of the function
+	tested: string;
+	last_updated: string;
+	ShowName?: boolean;
+	ShowLinks?: boolean;
+	ShowDescription?: boolean;
+	ShowCardFooter?: boolean;
+	ShowRating?: boolean;
+	ShowUpdated?: boolean;
+	ShowDownloaded?: boolean;
+	ShowCompatibility?: boolean;
+	columns?: number;
+}
 
 const PluginCard = ( {
 	name = __( 'No name availabe', 'wp-plugin-suggestions' ),
-	slug,
-	icons,
+	slug = '',
+	icons = '',
 	homepage = 'https://quadlayers.com',
 	short_description = __(
 		'No description availabe',
@@ -38,7 +63,7 @@ const PluginCard = ( {
 	ShowDownloaded = true,
 	ShowCompatibility = true,
 	columns = 3,
-} ) => {
+}: PluginCardProps ): JSX.Element => {
 	const [ status, setStatus ] = useState( pluginStatus );
 	const [ loading, setLoading ] = useState( false );
 
@@ -49,7 +74,7 @@ const PluginCard = ( {
 	const installPlugin = async () => {
 		if ( status === 'active' ) return;
 		setLoading( true );
-		if ( status == 'install' ) {
+		if ( status === 'install' ) {
 			const sitePluginsResponse = await installWordPressPlugin( slug );
 			setStatus( sitePluginsResponse.status );
 		} else {

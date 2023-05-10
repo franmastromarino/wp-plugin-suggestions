@@ -14,9 +14,10 @@ import wpApiFetch from '@wordpress/api-fetch';
  * @param {*} args
  * @returns response or error
  */
-export async function apiFetch( args ) {
+
+export async function apiFetch( args: any ): Promise< any > {
 	return await wpApiFetch( args )
-		.then( ( response ) => {
+		.then( ( response: { code: any; message: any } ) => {
 			if ( !! response.code ) {
 				throw new Error(
 					`${ response.code }: ${ response?.message || 'Unknown' }`
@@ -24,7 +25,7 @@ export async function apiFetch( args ) {
 			}
 			return response;
 		} )
-		.catch( ( error ) => {
+		.catch( ( error: unknown ) => {
 			throw new Error( JSON.stringify( error ) );
 		} );
 }
@@ -36,7 +37,7 @@ export function useWordPressPlugins() {
 		wordpressPlugins,
 		isResolvingWordPressPlugins,
 		hasResolvedWordPressPlugins,
-	} = useSelect( ( select ) => {
+	} = useSelect( ( select: any ) => {
 		const { isResolving, hasFinishedResolution, getWordPressPlugins } =
 			select( STORE_NAME );
 
@@ -64,7 +65,7 @@ export function useSitePlugins() {
 	const { activateSitePlugin } = useDispatch( STORE_NAME );
 
 	const { sitePlugins, isResolvingSitePlugins, hasResolvedSitePlugins } =
-		useSelect( ( select ) => {
+		useSelect( ( select: any ) => {
 			const { isResolving, hasFinishedResolution, getSitePlugins } =
 				select( STORE_NAME );
 
