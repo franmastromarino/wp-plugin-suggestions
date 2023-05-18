@@ -1,25 +1,38 @@
 /**
  * External dependencies
  */
+//@ts-ignore
 import { __, sprintf } from '@wordpress/i18n';
 import styled from 'styled-components';
 import React, { JSX } from 'react';
 /**
  * WordPress dependencies
  */
+//@ts-ignore
 import { useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { Spinner } from '../components/spinner';
-import { getLastUpdate, LABELS, ImagePlaceholder } from '../helpers';
+import { getLastUpdate, LABELS, ImagePlaceholder, getStars } from '../helpers';
 
+type Url = string;
+
+interface Icons {
+	default: Url;
+	'1x': Url;
+	'2x'?: Url;
+}
 interface PluginCardProps {
+	author: string;
+	author_profile: Url;
 	name?: string;
 	slug?: string;
-	icons?: string;
-	homepage?: string;
+	placeholder?: Url;
+	icons?: Icons;
+	homepage?: Url;
 	short_description?: string;
+	rating?: number;
 	num_ratings?: number;
 	active_installs?: number;
 	pluginStatus?: string;
@@ -38,15 +51,53 @@ interface PluginCardProps {
 	columns?: number;
 }
 
+interface PluginCardStyle {
+	columns?: number;
+}
+
+const Card = styled.div< PluginCardStyle >`
+	width: calc( ( 100% / ${ ( props ) => props.columns } ) - 20px );
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	@media ( min-width: 100rem ) {
+		img {
+			position: ${ ( props ) =>
+				props.columns === 3 ? 'initial' : 'absolute' } !important;
+		}
+
+		div.column-name {
+			margin: ${ ( props ) =>
+				props.columns === 3 ? '0px' : '148px' } !important;
+		}
+	}
+	@media ( max-width: 100rem ) {
+		width: calc( ( 100% / 2 ) - 20px );
+	}
+	@media ( max-width: 48.9375rem ) {
+		width: calc( ( 100% / 1 ) - 20px );
+	}
+	h3 {
+		margin: 0 12px 12px 0;
+	}
+	img {
+		width: 128px;
+	}
+`;
+
 const PluginCard = ( {
+	author,
+	author_profile,
 	name = __( 'No name availabe', 'wp-plugin-suggestions' ),
 	slug = '',
-	icons = '',
-	homepage = 'https://quadlayers.com',
+	placeholder = ImagePlaceholder,
+	icons,
+	homepage,
 	short_description = __(
 		'No description availabe',
 		'wp-plugin-suggestions'
 	),
+	rating = 0,
 	num_ratings = 0,
 	active_installs = 0,
 	pluginStatus = 'install',
@@ -66,11 +117,11 @@ const PluginCard = ( {
 }: PluginCardProps ): JSX.Element => {
 	const [ status, setStatus ] = useState( pluginStatus );
 	const [ loading, setLoading ] = useState( false );
-
+	const { fullStars, halfStars, emptyStars } = getStars( rating );
+	const authorWithoutAnchor: string = author.replace( /<\/?a[^>]*>/g, '' );
 	useEffect( () => {
 		setStatus( pluginStatus );
 	}, [ pluginStatus ] );
-
 	const installPlugin = async () => {
 		if ( status === 'active' ) return;
 		setLoading( true );
@@ -84,30 +135,39 @@ const PluginCard = ( {
 		setLoading( false );
 	};
 
-	const Card = styled.div`
-		width: calc( ( 100% / ${ columns } ) - 20px );
-		@media ( max-width: 100rem ) {
-			width: calc( ( 100% / 2 ) - 20px );
-		}
-		@media ( max-width: 48.9375rem ) {
-			width: calc( ( 100% / 1 ) - 20px );
-		}
-	`;
-
 	return (
-		<Card className="plugin-card">
+		<Card className="plugin-card" columns={ 3 }>
 			<div className="plugin-card-top">
 				<div className="name column-name">
 					<img
 						src={
-							icons?.[ '1x' ] ||
-							icons?.[ '2x' ] ||
-							ImagePlaceholder
+							( icons?.default ||
+								icons?.[ '1x' ] ||
+								icons?.[ '2x' ] ) ??
+							placeholder
 						}
 						className="plugin-icon"
 						alt={ name }
 					/>
 					{ ShowName && <h3>{ name }</h3> }
+
+					{ ShowDescription && (
+						<div>
+							<p>{ short_description }</p>
+							<p className="authors">
+								<cite>
+									{ __( 'By', 'wp-plugin-suggestions' ) }{ ' ' }
+									<a
+										target="_blank"
+										href={ homepage || author_profile }
+										rel="noreferrer"
+									>
+										{ authorWithoutAnchor }
+									</a>
+								</cite>
+							</p>
+						</div>
+					) }
 				</div>
 				{ ShowLinks && (
 					<div className="action-links">
@@ -121,7 +181,7 @@ const PluginCard = ( {
 										className="button button-primary"
 										onClick={ ( e ) => {
 											e.preventDefault();
-											installPlugin( slug );
+											installPlugin();
 										} }
 										aria-label={ sprintf(
 											__(
@@ -137,7 +197,7 @@ const PluginCard = ( {
 							</li>
 							<li>
 								<a
-									href={ homepage }
+									href={ `https://wordpress.org/plugins/${ slug }` }
 									aria-label={ sprintf(
 										__(
 											'More info %s',
@@ -157,23 +217,6 @@ const PluginCard = ( {
 						</ul>
 					</div>
 				) }
-				{ ShowDescription && (
-					<div className="desc column-description">
-						<p>{ short_description }</p>
-						<p className="authors">
-							<cite>
-								{ __( 'By', 'wp-plugin-suggestions' ) }{ ' ' }
-								<a
-									target="_blank"
-									href="https://quadlayers.com"
-									rel="noreferrer"
-								>
-									QuadLayers
-								</a>
-							</cite>
-						</p>
-					</div>
-				) }
 			</div>
 			{ ShowCardFooter && (
 				<div className="plugin-card-bottom">
@@ -189,26 +232,36 @@ const PluginCard = ( {
 										num_ratings
 									) }
 								</span>
-								<div
-									className="star star-full"
-									aria-hidden="true"
-								></div>
-								<div
-									className="star star-full"
-									aria-hidden="true"
-								></div>
-								<div
-									className="star star-full"
-									aria-hidden="true"
-								></div>
-								<div
-									className="star star-full"
-									aria-hidden="true"
-								></div>
-								<div
-									className="star star-full"
-									aria-hidden="true"
-								></div>
+								{ Array.from(
+									{ length: fullStars },
+									( _, index ) => (
+										<div
+											key={ `full_star_${ index }` }
+											className="star star-full"
+											aria-hidden="true"
+										></div>
+									)
+								) }
+								{ Array.from(
+									{ length: halfStars },
+									( _, index ) => (
+										<div
+											key={ `half_star_${ index }` }
+											className="star star-half"
+											aria-hidden="true"
+										></div>
+									)
+								) }
+								{ Array.from(
+									{ length: emptyStars },
+									( _, index ) => (
+										<div
+											key={ `empty_star_${ index }` }
+											className="star star-empty"
+											aria-hidden="true"
+										></div>
+									)
+								) }
 							</div>
 							<span className="num-ratings" aria-hidden="true">
 								({ num_ratings })

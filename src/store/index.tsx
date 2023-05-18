@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+//@ts-ignore
 import { createReduxStore, register } from '@wordpress/data';
 /**
  * Internal dependencies

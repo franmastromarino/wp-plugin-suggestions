@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+//@ts-ignore
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -8,11 +9,13 @@ import { __ } from '@wordpress/i18n';
 import * as actions from './actions';
 import { WordPressPlugin, SitePlugin } from './types';
 
-export const getWordPressPlugins = async (): Promise< {
+export const getWordPressPlugins = async (
+	author: string
+): Promise< {
 	type: string;
 	payload: WordPressPlugin[];
 } > => {
-	const response = await actions.fetchWordPressPlugins();
+	const response: any = await actions.fetchWordPressPlugins( author );
 	if ( ! response?.plugins ) {
 		// Verify
 		return {
@@ -20,7 +23,7 @@ export const getWordPressPlugins = async (): Promise< {
 			payload: [],
 		};
 	}
-	return actions.setWordPressPlugins( response.plugins );
+	return actions.setWordPressPlugins( response?.plugins );
 };
 
 export const getSitePlugins = async (): Promise< {

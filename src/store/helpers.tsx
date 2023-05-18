@@ -5,7 +5,9 @@ import { STORE_NAME } from './constants';
 /**
  * Wordpress dependencies
  */
+//@ts-ignore
 import { useSelect, useDispatch } from '@wordpress/data';
+//@ts-ignore
 import wpApiFetch from '@wordpress/api-fetch';
 
 /**
@@ -30,25 +32,31 @@ export async function apiFetch( args: any ): Promise< any > {
 		} );
 }
 
-export function useWordPressPlugins() {
+export function useWordPressPlugins( author: string ) {
 	const { installWordPressPlugin } = useDispatch( STORE_NAME );
 
 	const {
 		wordpressPlugins,
 		isResolvingWordPressPlugins,
 		hasResolvedWordPressPlugins,
-	} = useSelect( ( select: any ) => {
-		const { isResolving, hasFinishedResolution, getWordPressPlugins } =
-			select( STORE_NAME );
+	} = useSelect(
+		( select: any ) => {
+			const { isResolving, hasFinishedResolution, getWordPressPlugins } =
+				select( STORE_NAME );
 
-		return {
-			wordpressPlugins: getWordPressPlugins(),
-			isResolvingWordPressPlugins: isResolving( 'getWordPressPlugins' ),
-			hasResolvedWordPressPlugins: hasFinishedResolution(
-				'getWordPressPlugins'
-			),
-		};
-	}, [] );
+			return {
+				wordpressPlugins: getWordPressPlugins( author ),
+				isResolvingWordPressPlugins: isResolving(
+					'getWordPressPlugins'
+				),
+				hasResolvedWordPressPlugins: hasFinishedResolution(
+					'getWordPressPlugins',
+					author
+				),
+			};
+		},
+		[ author ]
+	);
 
 	return {
 		wordpressPlugins,

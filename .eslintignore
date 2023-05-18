@@ -1,7 +1,7 @@
 /node_modules
 /assets
 /tests
-/build
+/dist
 **/test/**
 /bin
 playwright.config.js

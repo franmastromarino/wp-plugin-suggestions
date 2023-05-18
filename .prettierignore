@@ -4,7 +4,7 @@
 /tests
 /jetpack_vendor
 /phpunit
-/build
+/dist
 /artifacts
 /test-results
 /playwright-report

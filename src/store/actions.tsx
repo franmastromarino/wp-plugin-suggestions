@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies
  */
+//@ts-ignore
 import { __, sprintf } from '@wordpress/i18n';
+//@ts-ignore
 import { store as noticesStore } from '@wordpress/notices';
 import { WordPressPlugin, SitePlugin } from './types';
 
@@ -83,7 +85,9 @@ export const activateSitePlugin =
 		select: any;
 	} ) => {
 		const sitePlugins = select.getSitePlugins();
-		const plugin = sitePlugins.find( ( name: string ) => name === slug );
+		const plugin = sitePlugins.find(
+			( currentPlugin: any ) => currentPlugin.name === slug
+		);
 
 		if ( ! plugin?.url ) {
 			return {
@@ -108,7 +112,7 @@ export const activateSitePlugin =
 
 		dispatch.setSitePlugins(
 			sitePlugins.map( ( f: { name: string } ) =>
-				f.name === pluginInstalled.name ? pluginInstalled : f
+				f.name == pluginInstalled.name ? pluginInstalled : f
 			)
 		);
 
@@ -120,18 +124,17 @@ export const fetchSitePlugins = async (): Promise< SitePlugin[] > => {
 		method: 'GET',
 		path: 'wp/v2/plugins',
 	} );
-	return response
-		.filter( ( author: string ) => author === 'QuadLayers' )
-		.map( ( data: any ) => ( {
-			name: data.plugin.split( '/' )[ 0 ],
-			status: data.status,
-			url: data._links.self[ 0 ].href,
-		} ) );
+	return response.map( ( data: any ) => ( {
+		name: data.plugin.split( '/' )[ 0 ],
+		status: data.status,
+		url: data._links.self[ 0 ].href,
+	} ) );
 };
 
-export const fetchWordPressPlugins = async (): Promise< WordPressPlugin[] > => {
-	const URL_PLUGINS =
-		'https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[author]=quadlayers';
+export const fetchWordPressPlugins = async (
+	author: string
+): Promise< WordPressPlugin[] > => {
+	const URL_PLUGINS = `https://api.wordpress.org/plugins/info/1.2/?action=query_plugins&request[author]=${ author }`;
 	const response = await fetch( URL_PLUGINS );
 	return ( await response.json() ) as WordPressPlugin[];
 };

@@ -1,7 +1,9 @@
 /**
  * WordPress dependencies
  */
+//@ts-ignore
 import { __ } from '@wordpress/i18n';
+//@ts-ignore
 import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
